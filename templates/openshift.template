@@ -482,7 +482,8 @@ Parameters:
     Default: ''
     Type: String
   AnsibleAdditionalEnvironmentVariables:
-    Description: 'OPTIONAL: Comma-separated list of key=value pairs to add to the Ansible config server UserData script'
+    Description: 'OPTIONAL: Specify a comma-separated list of environment variables exported in the Ansible user data.
+      Variables must be in the format KEY=VALUE. These are intended to be used by the Ansible post-install script.'
     Default: ''
     Type: String
 Rules:
@@ -2188,7 +2189,8 @@ Resources:
             aws s3 cp ${!QS_S3URI}scripts/ansibleconfigserver_bootstrap.sh ./bootstrap.sh
             chmod +x bootstrap.sh
             if [ -n ${AnsiblePostInstallScript} ]; then
-            aws s3 cp ${AnsiblePostInstallScript} /quickstart/post-install.sh
+            mkdir -p /quickstart
+            curl -o /quickstart/post-install.sh ${AnsiblePostInstallScript}
             chmod +x /quickstart/post-install.sh
             fi
             ./bootstrap.sh || qs_err " Openshift installation failed, see logs for details "

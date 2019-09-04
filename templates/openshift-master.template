@@ -480,7 +480,8 @@ Parameters:
     Default: ''
     Type: String
   AnsibleAdditionalEnvironmentVariables:
-    Description: 'OPTIONAL: Comma-separated list of key=value pairs to add to the Ansible config server UserData script'
+    Description: 'OPTIONAL: Specify a comma-separated list of environment variables exported in the Ansible user data.
+      Variables must be in the format KEY=VALUE. These are intended to be used by the Ansible post-install script.'
     Default: ''
     Type: String
 Conditions:

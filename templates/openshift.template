@@ -63,6 +63,8 @@ Metadata:
           - NumberOfGluster
           - AutomationBroker
           - ClusterConsole
+          - AnsiblePostInstallScript
+          - AnsibleAdditionalEnvironmentVariables
       - Label:
           default: Red Hat Subscription Information
         Parameters:
@@ -162,6 +164,10 @@ Metadata:
         default: OpenShift Automation Broker
       ClusterConsole:
         default: Enable the cluster console (requires OpenShift 3.11)
+      AnsiblePostInstallScript:
+        default: Ansible post-install script
+      AnsibleAdditionalEnvironmentVariables:
+        default: Additional ansible environment variables
 Parameters:
   AmiId:
     Description: >-
@@ -469,6 +475,16 @@ Parameters:
     Description: Enable the Cluster Console
     Type: String
     AllowedValues: [ Enabled, Disabled ]
+  AnsiblePostInstallScript:
+    AllowedPattern: ^http.*|^$
+    ConstraintDescription: URL must begin with http
+    Description: 'OPTIONAL: Specify a post install script to run on the Ansible config server'
+    Default: ''
+    Type: String
+  AnsibleAdditionalEnvironmentVariables:
+    Description: 'OPTIONAL: Comma-separated list of key=value pairs to add to the Ansible config server UserData script'
+    Default: ''
+    Type: String
 Rules:
   SubnetsInVPC:
     Assertions:
@@ -2161,6 +2177,7 @@ Resources:
             export SB_VERSION=v1.0.1
             export SB_ACCOUNTID=${AWS::AccountId}
             export LOG_GROUP=${OpenshiftLogGroup}
+            for e in $(echo "${AnsibleAdditionalEnvironmentVariables}" | tr ',' ' '); do export $e; done
             yum install -y git
             git clone https://github.com/aws-quickstart/quickstart-linux-utilities.git
             export P=/quickstart-linux-utilities/quickstart-cfn-tools.source
@@ -2170,6 +2187,10 @@ Resources:
             pip install awscli  &> /var/log/userdata.awscli_install.log || qs_err " awscli install failed "
             aws s3 cp ${!QS_S3URI}scripts/ansibleconfigserver_bootstrap.sh ./bootstrap.sh
             chmod +x bootstrap.sh
+            if [ -z ${AnsiblePostInstallScript} ]; then
+            aws s3 cp ${AnsiblePostInstallScript} /quickstart/post-install.sh
+            chmod +x /quickstart/post-install.sh
+            fi
             ./bootstrap.sh || qs_err " Openshift installation failed, see logs for details "
             cfn-signal -e $(qs_status) --stack ${AWS::StackName} --resource AnsibleConfigServer --region ${AWS::Region}
           -

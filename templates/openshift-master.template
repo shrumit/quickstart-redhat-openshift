@@ -55,6 +55,8 @@ Metadata:
           - NumberOfGluster
           - AutomationBroker
           - ClusterConsole
+          - AnsiblePostInstallScript
+          - AnsibleAdditionalEnvironmentVariables
       - Label:
           default: Red Hat Subscription Information
         Parameters:
@@ -152,6 +154,10 @@ Metadata:
         default: Cluster Name
       ClusterConsole:
         default: Enable the cluster console (Requires OpenShift 3.11)
+      AnsiblePostInstallScript:
+        default: Ansible post-install script
+      AnsibleAdditionalEnvironmentVariables:
+        default: Additional ansible environment variables
 Parameters:
   AmiId:
     Description: >-
@@ -467,6 +473,16 @@ Parameters:
     Description: Enable the Cluster Console
     Type: String
     AllowedValues: [ Enabled, Disabled ]
+  AnsiblePostInstallScript:
+    AllowedPattern: ^http.*|^$
+    ConstraintDescription: URL must begin with http
+    Description: 'OPTIONAL: Specify a post install script to run on the Ansible config server'
+    Default: ''
+    Type: String
+  AnsibleAdditionalEnvironmentVariables:
+    Description: 'OPTIONAL: Comma-separated list of key=value pairs to add to the Ansible config server UserData script'
+    Default: ''
+    Type: String
 Conditions:
   CustomClusterName: !Not
     - !Equals
@@ -542,6 +558,8 @@ Resources:
         AutomationBroker: !Ref AutomationBroker
         AmiId: !Ref AmiId
         ClusterConsole: !Ref ClusterConsole
+        AnsibleAdditionalEnvironmentVariables: !Ref AnsibleAdditionalEnvironmentVariables
+        AnsiblePostInstallScript: !Ref AnsiblePostInstallScript
 Outputs:
   OpenShiftUI:
     Description: The URL OpenShiftUI

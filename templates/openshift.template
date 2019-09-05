@@ -476,9 +476,9 @@ Parameters:
     Type: String
     AllowedValues: [ Enabled, Disabled ]
   AnsiblePostInstallScript:
-    AllowedPattern: ^http.*|^$
-    ConstraintDescription: URL must begin with http
-    Description: 'OPTIONAL: Specify a post install script to run on the Ansible config server'
+    AllowedPattern: ^s3://.*|^$
+    ConstraintDescription: S3 URI must begin with s3://
+    Description: 'OPTIONAL: Specify an S3 URI to a post install script to run on the Ansible config server'
     Default: ''
     Type: String
   AnsibleAdditionalEnvironmentVariables:
@@ -2190,7 +2190,7 @@ Resources:
             chmod +x bootstrap.sh
             if [ -n ${AnsiblePostInstallScript} ]; then
             mkdir -p /quickstart
-            curl -o /quickstart/post-install.sh ${AnsiblePostInstallScript}
+            aws s3 cp ${AnsiblePostInstallScript} /quickstart/post-install.sh
             chmod +x /quickstart/post-install.sh
             fi
             ./bootstrap.sh || qs_err " Openshift installation failed, see logs for details "

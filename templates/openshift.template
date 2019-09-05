@@ -2188,7 +2188,7 @@ Resources:
             pip install awscli  &> /var/log/userdata.awscli_install.log || qs_err " awscli install failed "
             aws s3 cp ${!QS_S3URI}scripts/ansibleconfigserver_bootstrap.sh ./bootstrap.sh
             chmod +x bootstrap.sh
-            if [ -n ${AnsiblePostInstallScript} ]; then
+            if [[ -n ${AnsiblePostInstallScript} ]]; then
             mkdir -p /quickstart
             aws s3 cp ${AnsiblePostInstallScript} /quickstart/post-install.sh
             chmod +x /quickstart/post-install.sh
